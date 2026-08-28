@@ -3,15 +3,13 @@
 ## 1.Project Title
 Comparative Evaluation of STFT-Based Spectral Subtraction and Wiener Filtering for Speech Enhancement
 
+
 ## 2. Student Information
 
-| Field | Details |
-|---|---|
-| Full Name | Suxin Liu |
-| Student ID | 540569223 |
-| GitHub Username | sliu2040977-hash |
-| Repository | [elec5305-project-540569223](https://github.com/sliu2040977-hash/elec5305-project-540569223) |
-| Project Site | [GitHub Pages](https://sliu2040977-hash.github.io/elec5305-project-540569223/) |
+- **Full Name:** Suxin Liu
+- **Student ID (SID):** 540569223
+- **GitHub Username:** sliu2040977-hash
+- **GitHub Project Link:** [https://github.com/sliu2040977-hash/elec5305-project-540569223](https://github.com/sliu2040977-hash/elec5305-project-540569223)
 
 ## 3. Project Overview
 
