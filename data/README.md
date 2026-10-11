@@ -4,9 +4,9 @@ This directory contains the small controlled dataset used for the preliminary ex
 
 ## Required files
 
-- `clean/clean.wav` — one clean VoiceBank speech recording
-- `noise/cafe.wav` — one café-noise recording from DEMAND
-
+- `p232_001.wav` — clean speech utterance from the VoiceBank test set
+- `ch01.wav` — channel 1 of the DEMAND PCAFETER cafeteria-noise recording
+  
 All signals are processed as mono 16 kHz audio.
 
 The initial hub experiment uses only one clean utterance and one café-noise recording at:
