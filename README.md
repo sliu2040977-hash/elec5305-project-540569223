@@ -1,549 +1,525 @@
-# elec5305-project-540569223
+# Investigating Phase Limitations in STFT-Based Speech Enhancement Using Oracle-Phase Analysis
 
-## 1. Project Title
+## 1. Student Information
 
-**Investigating Phase Limitations in STFT-Based Speech Enhancement Using Oracle-Phase Analysis**
-
-## 2. Student Information
-
-- **Full Name:** Suxin Liu
-- **Student ID (SID):** 540569223
+- **Name:** Suxin Liu
+- **Student ID:** 540569223
 - **GitHub Username:** sliu2040977-hash
-- **GitHub Project Repository:** https://github.com/sliu2040977-hash/elec5305-project-540569223
+- **Course:** ELEC5305
+- **GitHub Repository:** https://github.com/sliu2040977-hash/elec5305-project-540569223
 
-## 3. Project Overview
+---
 
-Single-channel speech enhancement aims to recover intelligible and high-quality speech from recordings corrupted by environmental noise. Many classical STFT-based enhancement methods estimate an improved magnitude spectrum but reconstruct the signal using the phase of the noisy mixture.
+## 2. Project Overview
 
-This project investigates when this noisy-phase assumption becomes a significant limitation.
+Single-channel speech enhancement aims to recover intelligible and high-quality speech from recordings corrupted by environmental noise. Many classical short-time Fourier transform (STFT) based enhancement methods estimate an improved magnitude spectrum but reconstruct the enhanced signal using the original phase of the noisy mixture.
 
-Spectral subtraction and Wiener filtering are retained as classical enhancement baselines. Rather than treating their direct performance comparison as the main research question, the project uses them to investigate the separate effects of magnitude estimation and phase information.
+This project investigates when this noisy-phase assumption becomes a limitation in classical speech enhancement.
 
-For each classical method, two reconstructions will be evaluated:
+Spectral subtraction and Wiener filtering are used as classical STFT-based baselines. Rather than treating their direct performance comparison as the main research question, the project separates the effects of magnitude estimation and phase information.
 
-1. the estimated enhanced magnitude combined with the original noisy phase;
-2. the same estimated enhanced magnitude combined with the oracle clean-speech phase.
+For each classical enhancement method, two reconstructions are evaluated:
 
-Because the magnitude estimate remains unchanged, the difference between these two conditions isolates the potential improvement associated with phase information.
+1. estimated enhanced magnitude + original noisy phase;
+2. the same estimated enhanced magnitude + oracle clean-speech phase.
 
-The main research question is:
+Because the magnitude estimate remains unchanged between these two conditions, the performance difference provides a controlled measurement of the effect of phase information.
 
-> **For classical STFT-based speech enhancement, when does reuse of the noisy phase become a significant limitation, how much improvement is achievable if the clean phase is known, and how does this compare with a modern phase-aware pretrained enhancer?**
+A further diagnostic condition uses the **perfect clean magnitude with noisy phase**. This tests whether noisy phase still limits performance even when magnitude estimation is ideal.
 
-A pretrained **MP-SENet** model will be used as a contemporary phase-aware reference. The project will not train a neural network.
+Finally, a pretrained **MP-SENet** model is evaluated as a modern phase-aware speech enhancement reference. MP-SENet explicitly estimates magnitude and phase spectra in parallel, allowing the classical noisy-phase assumption to be compared with a modern joint magnitude-and-phase approach.
 
-## 4. Background and Motivation
+### Research Question
 
-A noisy speech signal can be represented in the STFT domain as
+> **For classical STFT speech enhancement, when is reuse of noisy phase a limiting assumption, how large is the achievable improvement if phase is known accurately, and does a modern phase-aware pretrained enhancer reduce that gap?**
 
-$begin:math:display$
-X\(k\,m\)\=\|X\(k\,m\)\|e\^\{j\\phi\_X\(k\,m\)\}\.
-$end:math:display$
+---
 
-Classical spectral enhancement methods generally estimate a clean-speech magnitude
+## 3. Background and Motivation
 
-$begin:math:display$
-\|\\hat\{S\}\(k\,m\)\|
-$end:math:display$
+Traditional frequency-domain speech enhancement commonly operates using an analysis-modification-synthesis framework. A noisy signal is transformed into the time-frequency domain using the STFT, its spectral magnitude is modified, and the signal is reconstructed using the inverse STFT.
 
-and reconstruct the enhanced spectrum using the noisy mixture phase:
+Classical algorithms such as **spectral subtraction** and **Wiener filtering** mainly focus on estimating or modifying spectral magnitude. These methods are computationally simple and provide useful reference baselines, but the phase of the noisy mixture is commonly reused during reconstruction.
 
-$begin:math:display$
-\\hat\{S\}\(k\,m\)\=\|\\hat\{S\}\(k\,m\)\|e\^\{j\\phi\_X\(k\,m\)\}\.
-$end:math:display$
+Research has shown that phase should not always be treated as unimportant. Paliwal, Wójcicki and Shannon investigated the importance of phase in speech enhancement and demonstrated that phase modification can affect the quality of reconstructed speech. This motivates the central experiment in this project: holding the enhanced magnitude constant while replacing noisy phase with clean oracle phase.
 
-Therefore, even if the magnitude estimate improves substantially, reconstruction may remain limited by inaccurate phase information.
+Later speech enhancement research increasingly moved from magnitude-only processing toward complex-domain and phase-aware modelling. Complex spectral estimation and complex ratio masking allow models to modify both real and imaginary components of a time-frequency representation rather than treating phase as fixed.
 
-The importance of phase in speech enhancement is already established in previous research, particularly under difficult low-SNR conditions. Therefore, this project does not attempt to demonstrate that phase matters in general. Instead, it measures the size of the phase-related limitation for the particular classical methods, SNRs, and noise structures studied here.
+DCCRN represents an important stage in this development. It applies complex-valued convolutional and recurrent processing to phase-aware speech enhancement and demonstrated strong performance in the 2020 Deep Noise Suppression Challenge. DCCRN is therefore used in this project as an important literature reference rather than as an additional implemented model.
 
-Spectral subtraction and Wiener filtering provide transparent classical baselines for this investigation. Both use STFT-domain processing and normally retain the noisy phase, making them suitable for controlled oracle-phase experiments.
+More recently, MP-SENet explicitly estimates magnitude and wrapped phase spectra in parallel. A pretrained VoiceBank+DEMAND checkpoint is used in this project as the modern phase-aware comparison. No neural network is trained as part of this project.
 
-The project also connects these classical methods with modern phase-aware enhancement. MP-SENet explicitly estimates magnitude and phase spectra and will be used as a pretrained reference system. DCCRN will be included as relevant background literature on complex-domain and phase-aware speech enhancement.
+The progression motivating the project is therefore:
 
-## 5. Research Questions
+**classical magnitude-based enhancement → recognition of phase importance → complex/phase-aware enhancement → explicit joint magnitude-and-phase neural enhancement**
 
-### Primary Research Question
+---
 
-> When does reuse of the noisy phase become a significant limitation in STFT-based speech enhancement, and how much of the remaining enhancement error is associated with magnitude estimation versus phase error?
+## 4. Methodology
 
-### Secondary Research Question
+### 4.1 Tools
 
-> How does the performance of classical noisy-phase and oracle-phase enhancement compare with a modern pretrained phase-aware speech-enhancement model?
+The project is implemented in Python using:
 
-The investigation will also examine:
+- NumPy
+- SciPy
+- librosa
+- SoundFile
+- Matplotlib
+- pandas
+- pystoi
+- pesq
+- PyTorch
+- pretrained MP-SENet
 
-- whether the oracle-phase benefit changes with input SNR;
-- whether phase limitations differ across white, café, and traffic noise;
-- whether measured phase disagreement predicts the improvement obtained from oracle clean phase.
+All experimental code and result-generation scripts are contained in this repository.
 
-## 6. Dataset and Experimental Conditions
+### 4.2 Dataset
 
-The experiments will use clean speech from **VoiceBank** and environmental noise from **DEMAND**.
+Speech material is taken from the **VoiceBank** speech corpus, while environmental noise is based on **DEMAND** recordings.
 
-For controlled experiments, selected clean VoiceBank utterances will be mixed with:
+The controlled experiment currently uses:
 
-- white noise;
-- café noise;
-- traffic noise.
+- 40 clean speech utterances;
+- two VoiceBank speakers (`p232` and `p257`);
+- three noise conditions:
+  - Cafe
+  - Traffic
+  - White noise
+- three input SNR levels:
+  - 0 dB
+  - 5 dB
+  - 10 dB
 
-The primary input SNR conditions will be:
+This produces:
 
-- 0 dB;
-- 5 dB;
-- 10 dB.
+**40 utterances × 3 noise types × 3 SNR levels = 360 controlled noisy mixtures.**
 
-A -5 dB condition may be added if 0 dB does not provide a sufficiently difficult regime.
+Cafe and traffic recordings are obtained from DEMAND. White noise is generated using a fixed random seed for reproducibility.
 
-The full experiment will use approximately **30–50 clean utterances from several speakers**. Using 40 utterances, three noise types, and three SNR conditions would produce:
+Using controlled mixtures allows the input SNR and noise condition to be varied systematically.
 
-$begin:math:display$
-40 \\times 3 \\times 3 \= 360
-$end:math:display$
+### 4.3 STFT Processing
 
-controlled noisy mixtures.
+All signals are processed at 16 kHz.
 
-All signals will be converted to mono at 16 kHz and normalised consistently.
+The main STFT parameters are:
 
-## 7. STFT Configuration
+- FFT size: 512
+- Window length: 512 samples
+- Hop length: 256 samples
+- Window: Hann
 
-The same signal-processing configuration will be used for all classical experiments:
+For a noisy signal:
 
-- sampling rate: 16 kHz;
-- frame length: 512 samples;
-- Hann analysis window;
-- hop length: 256 samples;
-- overlap: 50%;
-- FFT size: 512.
+`Y(k,n) = |Y(k,n)| exp(jφY(k,n))`
 
-The same noisy signals, STFT parameters, and noise estimates will be used for spectral subtraction and Wiener filtering to maintain a controlled comparison.
+the magnitude and phase components are separated explicitly.
 
-## 8. Classical Enhancement Baselines
+This makes it possible to reconstruct the same enhanced magnitude using either noisy phase or clean oracle phase.
 
-### 8.1 Spectral Subtraction
+### 4.4 Classical Enhancement
 
-Spectral subtraction estimates the noise magnitude spectrum and subtracts it from the noisy magnitude spectrum. A spectral floor will be used to prevent negative magnitudes and reduce numerical problems.
+Two classical enhancement algorithms are implemented.
 
-The method produces an estimated magnitude:
+#### Spectral Subtraction
 
-$begin:math:display$
-\|\\hat\{S\}\_\{SS\}\(k\,m\)\|\.
-$end:math:display$
+Spectral subtraction estimates the noise magnitude spectrum and subtracts it from the noisy magnitude spectrum. A spectral floor is used to prevent negative or excessively small spectral magnitudes.
 
-### 8.2 Wiener Filtering
+#### Wiener Filtering
 
-Wiener filtering estimates a frequency-dependent gain from speech and noise power estimates and applies the gain to the noisy spectrum.
+Wiener filtering estimates a time-frequency gain based on speech and noise power and applies the gain to the noisy magnitude spectrum.
 
-The method produces an estimated magnitude:
+These methods are used as controlled experimental baselines rather than as the primary comparison of the project.
 
-$begin:math:display$
-\|\\hat\{S\}\_\{W\}\(k\,m\)\|\.
-$end:math:display$
+### 4.5 Oracle-Phase Experiment
 
-Spectral subtraction and Wiener filtering are used as **classical baselines**, rather than as the final research comparison.
+For each classical method, two versions are reconstructed:
 
-## 9. Oracle-Phase Experiments
-
-The clean reference signal has STFT
-
-$begin:math:display$
-S\(k\,m\)\=\|S\(k\,m\)\|e\^\{j\\phi\_S\(k\,m\)\}\.
-$end:math:display$
-
-The noisy signal has STFT
-
-$begin:math:display$
-X\(k\,m\)\=\|X\(k\,m\)\|e\^\{j\\phi\_X\(k\,m\)\}\.
-$end:math:display$
-
-### 9.1 Perfect-Magnitude / Noisy-Phase Experiment
-
-The first diagnostic oracle experiment reconstructs:
-
-$begin:math:display$
-S\_\{\\text\{oracle\-mag\}\}\(k\,m\)
-\=
-\|S\(k\,m\)\|e\^\{j\\phi\_X\(k\,m\)\}\.
-$end:math:display$
-
-This condition uses the **perfect clean-speech magnitude** while retaining the **noisy mixture phase**.
-
-Comparing this reconstruction with the true clean signal
-
-$begin:math:display$
-S\(k\,m\)\=\|S\(k\,m\)\|e\^\{j\\phi\_S\(k\,m\)\}
-$end:math:display$
-
-isolates the limitation caused by using noisy phase even when magnitude estimation is perfect.
-
-### 9.2 Spectral Subtraction Phase Experiment
-
-Normal spectral subtraction:
-
-$begin:math:display$
-\\hat\{S\}\_\{SS\,\\text\{noisy\-phase\}\}
-\=
-\|\\hat\{S\}\_\{SS\}\|e\^\{j\\phi\_X\}\.
-$end:math:display$
-
-Oracle-phase spectral subtraction:
-
-$begin:math:display$
-\\hat\{S\}\_\{SS\,\\text\{clean\-phase\}\}
-\=
-\|\\hat\{S\}\_\{SS\}\|e\^\{j\\phi\_S\}\.
-$end:math:display$
-
-The magnitude estimate is identical in both cases. Only the phase changes.
-
-### 9.3 Wiener Phase Experiment
-
-Normal Wiener reconstruction:
-
-$begin:math:display$
-\\hat\{S\}\_\{W\,\\text\{noisy\-phase\}\}
-\=
-\|\\hat\{S\}\_\{W\}\|e\^\{j\\phi\_X\}\.
-$end:math:display$
-
-Oracle-phase Wiener reconstruction:
-
-$begin:math:display$
-\\hat\{S\}\_\{W\,\\text\{clean\-phase\}\}
-\=
-\|\\hat\{S\}\_\{W\}\|e\^\{j\\phi\_S\}\.
-$end:math:display$
-
-These clean-phase versions are diagnostic experimental controls, not practical deployable enhancement systems.
-
-## 10. Separating Magnitude and Phase Limitations
-
-The oracle experiments allow the enhancement error to be investigated in terms of two components:
-
-**magnitude-estimation error + phase-related error**
-
-For an objective metric $begin:math:text$Q$end:math:text$, the oracle-phase benefit will be defined as
-
-$begin:math:display$
-\\Delta Q\_\{\\phi\}
-\=
-Q\_\{\\text\{clean\-phase\}\}
-\-
-Q\_\{\\text\{noisy\-phase\}\}\.
-$end:math:display$
+- **Noisy-phase reconstruction**
+- **Clean oracle-phase reconstruction**
 
 For example:
 
-$begin:math:display$
-\\Delta PESQ\_\{\\phi\}
-\=
-PESQ\_\{\\text\{clean\-phase\}\}
-\-
-PESQ\_\{\\text\{noisy\-phase\}\}\.
-$end:math:display$
+`SS magnitude + noisy phase`
 
-A small oracle-phase benefit indicates that phase is not the dominant limitation under that condition.
+is compared with:
 
-A large oracle-phase benefit indicates that substantial improvement remains possible if more accurate phase information is available.
+`same SS magnitude + clean phase`
 
-## 11. Phase-Disagreement Measurement
+and similarly for Wiener filtering.
 
-The phase difference between clean and noisy speech will be calculated as
+Because the magnitude is identical within each pair, any metric difference is attributable to the phase used for reconstruction.
 
-$begin:math:display$
-\\Delta\\phi\(k\,m\)
-\=
-\\operatorname\{wrap\}
-\\left\(
-\\phi\_S\(k\,m\)\-\\phi\_X\(k\,m\)
-\\right\)\.
-$end:math:display$
+The clean phase condition is an **oracle diagnostic** and is not a deployable enhancement system.
 
-An energy-weighted phase-disagreement measure will be calculated as
+### 4.6 Perfect-Magnitude Diagnostic
 
-$begin:math:display$
-D\_\{\\phi\}
-\=
-\\frac\{
-\\sum\_\{k\,m\}\|S\(k\,m\)\|\^2
-\\left\[1\-\\cos\\Delta\\phi\(k\,m\)\\right\]
-\}\{
-\\sum\_\{k\,m\}\|S\(k\,m\)\|\^2\+\\epsilon
-\}\.
-$end:math:display$
+An additional diagnostic reconstruction uses:
 
-The analysis will test whether larger phase disagreement corresponds to a larger oracle-phase improvement.
+**clean magnitude + noisy phase**
 
-A key analysis will therefore compare:
+This represents a perfect magnitude estimate while deliberately retaining the noisy phase.
 
-$begin:math:display$
-D\_\{\\phi\}
-\\quad \\text\{versus\} \\quad
-\\Delta PESQ\_\{\\phi\}
-$end:math:display$
+It provides an important reference for determining whether phase remains the dominant limitation once magnitude estimation error is removed.
 
-and equivalent changes in other objective metrics.
+### 4.7 Phase Disagreement
 
-## 12. Objective Evaluation
+The project also measures disagreement between clean and noisy phase.
 
-The principal evaluation metrics will be:
+Wrapped phase difference is computed in the STFT domain and summarized as a phase-disagreement measure.
 
-- **STOI** — speech intelligibility;
-- **PESQ** — perceptual speech quality;
-- **SI-SDR or output SNR** — signal reconstruction performance;
-- **phase disagreement $begin:math:text$D\_\{\\phi\}$end:math:text$** — difference between clean and noisy phase.
+This is compared with the improvement produced by replacing noisy phase with clean oracle phase.
 
-For each method and experimental condition, the evaluation will distinguish between noisy-phase and oracle clean-phase reconstruction.
+The objective is to test whether larger phase disagreement predicts a larger potential benefit from accurate phase information.
 
-A typical result table will contain:
+### 4.8 Objective Metrics
 
-| Condition | Phase Used | STOI | PESQ | SI-SDR |
-|---|---|---:|---:|---:|
-| Noisy input | noisy | TBD | TBD | TBD |
-| Spectral subtraction | noisy | TBD | TBD | TBD |
-| Spectral subtraction | clean oracle | TBD | TBD | TBD |
-| Wiener filtering | noisy | TBD | TBD | TBD |
-| Wiener filtering | clean oracle | TBD | TBD | TBD |
-| Perfect magnitude | noisy | TBD | TBD | TBD |
-| MP-SENet | estimated phase | TBD | TBD | TBD |
-| Clean reference | clean | TBD | TBD | TBD |
+Three objective metrics are used:
 
-The `TBD` values will be replaced by measured experimental results.
+- **STOI** — speech intelligibility
+- **PESQ** — perceptual speech quality
+- **SI-SDR** — signal reconstruction/distortion performance
 
-## 13. Analysis Across SNR
+Using multiple metrics is important because phase information does not necessarily affect intelligibility, perceptual quality and signal distortion in the same way.
 
-The oracle-phase benefit will be evaluated at 0, 5, and 10 dB input SNR.
+### 4.9 MP-SENet
 
-For each SNR:
+After completing the oracle-phase experiment, a pretrained **MP-SENet** VoiceBank+DEMAND checkpoint is used as a modern phase-aware reference.
 
-$begin:math:display$
-\\Delta Q\_\{\\phi\}
-\=
-Q\_\{\\text\{clean\-phase\}\}
-\-
-Q\_\{\\text\{noisy\-phase\}\}\.
-$end:math:display$
+MP-SENet estimates magnitude and phase spectra jointly rather than reusing noisy phase.
 
-The project will plot oracle-phase benefit against input SNR to determine whether the importance of accurate phase increases as the acoustic mixture becomes more difficult.
+No training or parameter tuning is performed in this project.
 
-Separate curves will be produced for the selected noise types and enhancement methods.
+Due to the computational/runtime limits of the available GitHub Codespaces environment, MP-SENet inference was successfully completed for **167 of the 360 controlled mixtures**.
 
-## 14. Analysis Across Noise Types
+To avoid an unfair comparison, MP-SENet is not compared with classical averages computed from all 360 mixtures. Instead, all classical and oracle methods are re-selected on the **same 167 mixtures**, producing a strict matched comparison with `N = 167` for every method.
 
-Three different noise structures will be studied:
+---
 
-- white noise;
-- café noise;
-- traffic noise.
+## 5. Current Results
 
-These noises differ in temporal variation, frequency structure, and stationarity.
+### 5.1 Full Oracle-Phase Experiment
 
-The experiments will determine whether the phase-related limitation is similar across interference types or whether some noise structures produce substantially greater phase disagreement and oracle-phase benefit.
+The complete classical experiment contains:
 
-No outcome will be assumed in advance.
+- 40 clean utterances
+- 3 noise types
+- 3 SNR levels
+- 360 noisy mixtures
+- 6 classical/diagnostic conditions per mixture
 
-## 15. Modern Phase-Aware Reference: MP-SENet
+This produces **2160 metric rows**.
 
-A pretrained **MP-SENet (Magnitude-and-Phase Speech Enhancement Network)** will be used as a contemporary reference.
+The experiment confirms that replacing noisy phase with clean oracle phase produces measurable improvements while keeping the magnitude estimate unchanged.
 
-MP-SENet estimates magnitude and phase information in parallel. The pretrained VoiceBank+DEMAND checkpoint will be used for inference on the same noisy examples evaluated by the classical methods.
+The final result figures are available in:
 
-The model will **not be trained or tuned** as part of this project.
+`results/final_figures/`
 
-The purpose of MP-SENet is to determine how a practical modern phase-aware system compares with:
+### 5.2 Phase Disagreement
 
-- classical noisy-phase enhancement;
-- classical oracle-phase enhancement;
-- the theoretical improvement indicated by the oracle experiments.
+Across the 360-mixture experiment, the relationship between phase disagreement and oracle-phase benefit is strongly dependent on the evaluation metric.
 
-DCCRN will be discussed as an additional background example of complex-domain phase-aware speech enhancement, but implementation of both neural models is not required.
+The measured Pearson correlations are:
 
-## 16. Preliminary Experiment
+| Metric improvement | Correlation with phase disagreement |
+|---|---:|
+| ΔSTOI | **+0.8969** |
+| ΔPESQ | **−0.5234** |
+| ΔSI-SDR | **+0.0855** |
 
-The first implementation milestone will use **one clean VoiceBank utterance** and **café noise**.
+The strong positive relationship for STOI indicates that larger phase disagreement is associated with a larger intelligibility benefit from oracle phase.
 
-Three mixtures will be generated:
+However, the same relationship does not generalize across all metrics. PESQ shows a moderate negative correlation, while SI-SDR shows almost no linear correlation.
 
-- 10 dB;
-- 5 dB;
-- 0 dB.
+Therefore, phase disagreement cannot be treated as a universal predictor of enhancement improvement. Its importance depends strongly on the evaluation criterion.
 
-For each mixture, the following will be produced:
+![Phase disagreement vs STOI benefit](results/final_figures/05_phase_disagreement_vs_stoi_benefit.png)
 
-1. clean spectrogram;
-2. noisy spectrogram;
-3. spectral-subtraction output;
-4. Wiener-filter output;
-5. spectral subtraction with oracle clean phase;
-6. Wiener filtering with oracle clean phase.
+![Phase disagreement vs PESQ benefit](results/final_figures/04_phase_disagreement_vs_pesq_benefit.png)
 
-The following conditions will then be evaluated:
+### 5.3 Oracle-Phase Benefit Across SNR
 
-| Condition | STOI | PESQ | SI-SDR |
+The oracle-phase benefit is also evaluated separately at 0, 5 and 10 dB and across Cafe, Traffic and White noise.
+
+![Oracle phase STOI benefit](results/final_figures/02_oracle_phase_stoi_benefit_vs_snr.png)
+
+![Oracle phase PESQ benefit](results/final_figures/01_oracle_phase_pesq_benefit_vs_snr.png)
+
+These experiments show that the effect of phase cannot be summarized by a single global number. The benefit depends on the noise condition, SNR and objective metric.
+
+---
+
+## 6. Matched MP-SENet Comparison
+
+For a fair comparison with MP-SENet, all methods below are evaluated on exactly the same **167 mixtures**.
+
+| Method | STOI | PESQ | SI-SDR (dB) |
 |---|---:|---:|---:|
-| Noisy | TBD | TBD | TBD |
-| SS + noisy phase | TBD | TBD | TBD |
-| SS + clean oracle phase | TBD | TBD | TBD |
-| Wiener + noisy phase | TBD | TBD | TBD |
-| Wiener + clean oracle phase | TBD | TBD | TBD |
+| Noisy | 0.8595 | 1.2844 | 5.03 |
+| Spectral Subtraction + noisy phase | 0.8597 | 1.4639 | 9.16 |
+| Spectral Subtraction + clean oracle phase | 0.8749 | 1.5312 | 11.09 |
+| Wiener + noisy phase | 0.8573 | 1.4098 | 8.53 |
+| Wiener + clean oracle phase | 0.8720 | 1.4765 | 10.40 |
+| Perfect magnitude + noisy phase | **0.9794** | **3.6227** | **15.13** |
+| MP-SENet | **0.9231** | **2.3356** | **14.58** |
 
-This preliminary experiment will verify that the central experimental pipeline works before scaling to the full dataset.
+### 6.1 Effect of Oracle Phase
 
-## 17. Visual and Acoustic Analysis
+For spectral subtraction, replacing noisy phase with clean phase changes:
 
-Representative signals will be analysed using:
+- STOI: 0.8597 → 0.8749
+- PESQ: 1.4639 → 1.5312
+- SI-SDR: 9.16 → 11.09 dB
 
-- clean and noisy waveforms;
-- clean and noisy spectrograms;
-- enhanced magnitude spectra;
-- phase-difference visualisation;
-- normal noisy-phase reconstructions;
-- oracle clean-phase reconstructions.
+For Wiener filtering:
 
-Representative audio examples will include:
+- STOI: 0.8573 → 0.8720
+- PESQ: 1.4098 → 1.4765
+- SI-SDR: 8.53 → 10.40 dB
 
-- noisy speech;
-- spectral subtraction;
-- oracle-phase spectral subtraction;
-- Wiener filtering;
-- oracle-phase Wiener filtering;
-- MP-SENet.
+Therefore, noisy-phase reuse is a measurable limitation of both classical methods.
 
-The acoustic discussion will consider audible effects including residual background noise, musical noise, speech attenuation, roughness, and phasiness.
+### 6.2 Perfect Magnitude Result
 
-## 18. Planned Key Figures
+The perfect-magnitude condition achieves:
 
-One principal figure will show **oracle-phase benefit versus input SNR**.
+- STOI = **0.9794**
+- PESQ = **3.6227**
+- SI-SDR = **15.13 dB**
 
-For example:
+Despite retaining noisy phase, it achieves the strongest overall objective performance among the evaluated non-clean-reference conditions.
 
-$begin:math:display$
-\\Delta PESQ\_\{\\phi\}
-\=
-PESQ\_\{\\text\{clean\-phase\}\}
-\-
-PESQ\_\{\\text\{noisy\-phase\}\}\.
-$end:math:display$
+This is an important result because it shows that the project does **not** support the simple conclusion that phase is always the dominant bottleneck.
 
-Separate curves will be shown for white, café, and traffic noise.
+Magnitude estimation accuracy remains highly important.
 
-A second analysis will plot:
+### 6.3 MP-SENet Result
 
-$begin:math:display$
-D\_\{\\phi\}
-\\quad \\text\{versus\} \\quad
-\\Delta PESQ\_\{\\phi\}\.
-$end:math:display$
+MP-SENet achieves:
 
-This will test whether measured phase disagreement predicts the potential benefit of improved phase information.
+- STOI = **0.9231**
+- PESQ = **2.3356**
+- SI-SDR = **14.58 dB**
 
-## 19. Implementation Scope
+It substantially outperforms the noisy signal, spectral subtraction and Wiener filtering, including their clean-phase oracle versions on this matched subset.
 
-The project implementation will focus on:
+However, it remains below the perfect-magnitude diagnostic condition.
 
-- audio loading and preprocessing;
-- controlled SNR mixing;
-- STFT and ISTFT;
-- spectral subtraction;
-- Wiener filtering;
-- magnitude/phase decomposition;
-- oracle clean-phase reconstruction;
-- phase-disagreement measurement;
-- STOI, PESQ and SI-SDR evaluation;
-- pretrained MP-SENet inference;
-- quantitative and acoustic interpretation.
+This suggests that modern phase-aware enhancement benefits from joint magnitude-and-phase modelling rather than phase correction alone.
 
-The project will **not train a neural network** and will not add unnecessary additional enhancement algorithms.
+![Matched STOI comparison](results/final_figures/07_matched_method_comparison_stoi.png)
 
-## 20. Repository Structure
+![Matched PESQ comparison](results/final_figures/08_matched_method_comparison_pesq.png)
 
-The planned repository structure is:
+![Matched SI-SDR comparison](results/final_figures/09_matched_method_comparison_sisdr.png)
 
-```text
-elec5305-project-540569223/
-│
-├── README.md
-├── requirements.txt
-│
-├── src/
-│   ├── audio_utils.py
-│   ├── mixing.py
-│   ├── stft_utils.py
-│   ├── spectral_subtraction.py
-│   ├── wiener_filter.py
-│   ├── oracle_phase.py
-│   ├── metrics.py
-│   └── phase_metrics.py
-│
-├── experiments/
-│   └── preliminary_experiment.py
-│
-├── results/
-│   ├── figures/
-│   └── tables/
-│
-└── audio_examples/
-```
+---
 
-Dataset files and large pretrained model files will not be committed unnecessarily. Instructions for obtaining the required datasets and pretrained model will be documented.
+## 7. Main Findings
 
-## 21. Resources
+The current experiments support four main findings.
 
-The project will use the following resources:
+### Finding 1 — Noisy Phase Is a Measurable Limitation
 
-- VoiceBank+DEMAND speech-enhancement dataset;
-- DEMAND environmental-noise database;
-- MP-SENet official implementation and pretrained checkpoint;
-- DCCRN / DeepComplexCRN as phase-aware background literature;
-- `pystoi` for STOI evaluation;
-- Python PESQ implementation for perceptual quality evaluation.
+When the estimated magnitude is held constant, replacing noisy phase with clean oracle phase improves spectral subtraction and Wiener filtering.
 
-## 22. Literature Review Direction
+Therefore, noisy-phase reuse does impose a measurable limitation on classical STFT enhancement.
 
-The final literature review will contain approximately 8–10 relevant sources covering:
+### Finding 2 — The Importance of Phase Is Metric-Dependent
 
-- spectral subtraction;
-- Wiener filtering;
-- STFT-based speech enhancement;
-- magnitude and phase in speech enhancement;
-- oracle-phase experiments;
-- complex ratio masks and complex-domain enhancement;
-- DCCRN;
-- MP-SENet;
-- VoiceBank+DEMAND;
-- STOI and PESQ evaluation.
+Phase disagreement strongly predicts oracle-phase STOI improvement (`r = 0.8969`), but does not predict PESQ and SI-SDR improvement in the same way.
 
-The literature review will describe the progression from magnitude-only enhancement, through recognition of phase limitations, to modern complex-domain and phase-aware enhancement.
+Phase limitations should therefore not be described using only one objective metric.
 
-## 23. Expected Project Outcome
+### Finding 3 — Magnitude Estimation Remains Extremely Important
 
-The project will quantify when noisy-phase reuse limits classical STFT-based speech enhancement rather than merely comparing two established classical algorithms.
+The perfect-magnitude + noisy-phase condition produces the strongest objective performance.
 
-The final analysis will determine:
+This demonstrates that magnitude estimation error remains a major source of performance loss even when phase is imperfect.
 
-1. the improvement available when noisy phase is replaced by oracle clean phase;
-2. how this improvement changes with SNR;
-3. how it changes across different noise structures;
-4. whether phase disagreement predicts oracle-phase benefit;
-5. how a pretrained phase-aware MP-SENet system compares with the classical baselines and their oracle-phase controls.
+### Finding 4 — Modern Phase-Aware Enhancement Is More Than Phase Replacement
 
-The final repository will contain the source code, reproducible experiment instructions, objective results, plots, and representative audio examples.
+MP-SENet substantially outperforms the classical enhancement methods, including their oracle-phase versions.
 
-## 24. References
+Its advantage therefore cannot be explained simply by replacing noisy phase with a better phase estimate. Joint magnitude-and-phase modelling provides a more powerful enhancement strategy.
 
-1. K. K. Paliwal, K. Wójcicki, and B. Shannon, “The importance of phase in speech enhancement,” *Speech Communication*, vol. 53, no. 4, pp. 465–494, 2011.
+---
 
-2. S. Boll, “Suppression of acoustic noise in speech using spectral subtraction,” *IEEE Transactions on Acoustics, Speech, and Signal Processing*, vol. 27, no. 2, pp. 113–120, 1979.
+## 8. Limitations
 
-3. C. H. You, S. N. Koh, and S. Rahardja, “Beta-order MMSE spectral amplitude estimation for speech enhancement,” *IEEE Transactions on Speech and Audio Processing*, vol. 13, no. 4, pp. 475–486, 2005.
+Several limitations should be considered when interpreting the current results.
 
-4. C. K. A. Reddy et al., “ICASSP 2021 Deep Noise Suppression Challenge,” *ICASSP*, pp. 6623–6627, 2021.
+First, the controlled experiment contains 40 utterances from two VoiceBank speakers rather than a larger multi-speaker dataset.
 
-5. X. Hao et al., “FullSubNet: A Full-Band and Sub-Band Fusion Model for Real-Time Single-Channel Speech Enhancement,” *ICASSP*, pp. 6633–6637, 2021.
+Second, the oracle clean phase is available only because the clean reference signal is known. It is a diagnostic experiment and is not available in a real deployment scenario.
 
-6. S.-W. Fu et al., “MetricGAN+: An Improved Version of MetricGAN for Speech Enhancement,” *Interspeech*, pp. 201–205, 2021.
+Third, the classical experiment uses controlled noise mixtures where the added noise signal is known. This provides experimental control but differs from practical blind noise estimation.
 
-7. H. Schröter et al., “DeepFilterNet: A Low Complexity Speech Enhancement Framework for Full-Band Audio Based on Deep Filtering,” *ICASSP*, pp. 7407–7411, 2022.
+Fourth, MP-SENet inference was completed for 167 of 360 mixtures because of CPU/runtime constraints in GitHub Codespaces. Therefore, MP-SENet comparisons are reported only on the same matched 167-mixture subset.
 
-8. J. Richter et al., “Speech Enhancement and Dereverberation With Diffusion-Based Generative Models,” *IEEE/ACM Transactions on Audio, Speech, and Language Processing*, vol. 31, pp. 2351–2364, 2023.
+Finally, the pretrained MP-SENet model was not retrained or adapted to the controlled experimental mixtures. Its results therefore represent pretrained-model inference rather than dataset-specific optimisation.
 
-Further references on MP-SENet, DCCRN, VoiceBank+DEMAND, STOI, PESQ, and complex-domain enhancement will be incorporated as implementation progresses.
+---
+
+## 9. Project Progress
+
+The following components have been completed:
+
+- [x] Literature review and revised research question
+- [x] VoiceBank speech preparation
+- [x] DEMAND noise preparation
+- [x] Controlled SNR mixing
+- [x] STFT/ISTFT implementation
+- [x] Spectral subtraction
+- [x] Wiener filtering
+- [x] Noisy-phase reconstruction
+- [x] Clean oracle-phase reconstruction
+- [x] Perfect-magnitude diagnostic
+- [x] Phase-disagreement measurement
+- [x] STOI evaluation
+- [x] PESQ evaluation
+- [x] SI-SDR evaluation
+- [x] Preliminary single-utterance experiment
+- [x] Full 360-mixture classical experiment
+- [x] Oracle-phase benefit analysis
+- [x] Phase-disagreement correlation analysis
+- [x] Pretrained MP-SENet inference
+- [x] 167-mixture matched MP-SENet comparison
+- [x] Final result figures
+
+No neural network training is required for the current project scope.
+
+---
+
+## 10. Repository Structure
+
+    elec5305-project-540569223/
+    │
+    ├── src/
+    │   ├── audio_utils.py
+    │   ├── mixing.py
+    │   ├── stft_utils.py
+    │   ├── spectral_subtraction.py
+    │   ├── wiener_filter.py
+    │   ├── phase_reconstruction.py
+    │   └── metrics.py
+    │
+    ├── experiments/
+    │   ├── preliminary_experiment.py
+    │   ├── full_experiment.py
+    │   ├── summarize_full_results.py
+    │   ├── plot_full_results.py
+    │   ├── generate_mpsenet_inputs.py
+    │   ├── prepare_mpsenet_batch.py
+    │   ├── run_mpsenet_batches.py
+    │   ├── evaluate_mpsenet.py
+    │   ├── compare_matched_results.py
+    │   └── plot_final_results.py
+    │
+    ├── results/
+    │   ├── preliminary/
+    │   ├── full_experiment/
+    │   ├── matched_comparison/
+    │   ├── mpsenet/
+    │   └── final_figures/
+    │
+    ├── data/
+    │   └── README.md
+    │
+    ├── requirements.txt
+    └── README.md
+
+Large source datasets, pretrained model files and bulk generated WAV files are not stored directly in this repository.
+
+---
+
+## 11. Reproduction
+
+Install the required Python packages:
+
+    pip install -r requirements.txt
+
+Run the preliminary experiment:
+
+    PYTHONPATH=. python experiments/preliminary_experiment.py
+
+Run the full classical/oracle experiment:
+
+    PYTHONPATH=. python experiments/full_experiment.py
+
+Generate full-experiment summaries:
+
+    python experiments/summarize_full_results.py
+
+Generate the full classical figures:
+
+    python experiments/plot_full_results.py
+
+After MP-SENet inference and evaluation, create the matched comparison:
+
+    python experiments/compare_matched_results.py
+
+Generate the final report figures:
+
+    python experiments/plot_final_results.py
+
+The generated numerical results are stored as CSV files under `results/`, while final figures are stored under `results/final_figures/`.
+
+---
+
+## 12. Expected / Current Outcomes
+
+The project delivers:
+
+1. a reproducible STFT speech-enhancement experiment;
+2. implementations of spectral subtraction and Wiener filtering;
+3. controlled noisy-phase versus clean-phase reconstruction;
+4. quantitative measurement of oracle-phase benefit;
+5. phase-disagreement analysis;
+6. STOI, PESQ and SI-SDR evaluation;
+7. a perfect-magnitude diagnostic experiment;
+8. comparison with a pretrained modern phase-aware model;
+9. figures and CSV results suitable for further analysis and final reporting.
+
+The central conclusion from the current experiments is:
+
+> **Reusing noisy phase is a measurable limitation of classical STFT-based speech enhancement, but the importance of this limitation depends strongly on the evaluation metric and interacts with magnitude estimation accuracy. Modern joint magnitude-and-phase enhancement provides substantial improvement over classical methods, while the perfect-magnitude experiment shows that magnitude estimation remains a major limiting factor.**
+
+---
+
+## 13. References
+
+The references below follow the progression from classical magnitude-based enhancement, through research on phase importance and complex-domain processing, to modern phase-aware neural speech enhancement.
+
+[1] S. F. Boll, “Suppression of acoustic noise in speech using spectral subtraction,” *IEEE Transactions on Acoustics, Speech, and Signal Processing*, vol. 27, no. 2, pp. 113–120, 1979.
+
+[2] P. C. Loizou, *Speech Enhancement: Theory and Practice*, 2nd ed. Boca Raton, FL, USA: CRC Press, 2013.
+
+[3] K. K. Paliwal, K. K. Wójcicki, and B. J. Shannon, “The importance of phase in speech enhancement,” *Speech Communication*, vol. 53, no. 4, pp. 465–494, 2011.
+
+[4] D. S. Williamson, Y. Wang, and D. Wang, “Complex ratio masking for monaural speech separation,” *IEEE/ACM Transactions on Audio, Speech, and Language Processing*, vol. 24, no. 3, pp. 483–492, 2016.
+
+[5] Y. Hu, Y. Liu, S. Lv, M. Xing, S. Zhang, Y. Fu, J. Wu, B. Zhang, and L. Xie, “DCCRN: Deep Complex Convolution Recurrent Network for Phase-Aware Speech Enhancement,” in *Proceedings of Interspeech*, 2020.
+
+[6] Y.-X. Lu, Y. Ai, and Z.-H. Ling, “MP-SENet: A Speech Enhancement Model with Parallel Denoising of Magnitude and Phase Spectra,” in *Proceedings of Interspeech*, pp. 3834–3838, 2023.
+
+[7] C. Valentini-Botinhao, X. Wang, S. Takaki, and J. Yamagishi, “Investigating RNN-based speech enhancement methods for noise-robust text-to-speech,” in *Proceedings of SSW*, 2016. The associated VoiceBank+DEMAND corpus is used widely for speech-enhancement evaluation.
+
+[8] J. Thiemann, N. Ito, and E. Vincent, “The Diverse Environments Multi-channel Acoustic Noise Database (DEMAND): A database of multichannel environmental noise recordings,” in *Proceedings of Meetings on Acoustics*, vol. 19, 2013.
+
+[9] C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen, “An algorithm for intelligibility prediction of time-frequency weighted noisy speech,” *IEEE Transactions on Audio, Speech, and Language Processing*, vol. 19, no. 7, pp. 2125–2136, 2011.
+
+[10] A. W. Rix, J. G. Beerends, M. P. Hollier, and A. P. Hekstra, “Perceptual evaluation of speech quality (PESQ)—A new method for speech quality assessment of telephone networks and codecs,” in *Proceedings of IEEE ICASSP*, 2001.
+
+---
+
+## 14. Resources
+
+- University of Edinburgh VoiceBank speech data
+- DEMAND environmental noise database
+- Official MP-SENet implementation and pretrained VoiceBank+DEMAND checkpoint
+- DCCRN phase-aware speech enhancement implementation and paper
+- `pystoi` implementation for STOI
+- Python `pesq` implementation for PESQ
