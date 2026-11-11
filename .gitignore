@@ -25,3 +25,6 @@ dist/
 # Temporary files
 *.tmp
 *.log
+
+# Local demonstration output
+demo_output/

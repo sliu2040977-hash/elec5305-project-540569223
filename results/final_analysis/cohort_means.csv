@@ -1,0 +1,58 @@
+Subset,Condition,Metric,N,Mean
+All classical,Noisy,STOI,360,0.856514233834239
+All classical,Perfect magnitude + noisy phase,STOI,360,0.9789213508178461
+All classical,SS + clean oracle phase,STOI,360,0.8762999238558646
+All classical,SS + noisy phase,STOI,360,0.8592588055914325
+All classical,Wiener + clean oracle phase,STOI,360,0.872982705350865
+All classical,Wiener + noisy phase,STOI,360,0.8566223926930207
+All classical,Noisy,PESQ,360,1.2347472141186395
+All classical,Perfect magnitude + noisy phase,PESQ,360,3.5431843400001526
+All classical,SS + clean oracle phase,PESQ,360,1.4849046574698554
+All classical,SS + noisy phase,PESQ,360,1.4188274691502254
+All classical,Wiener + clean oracle phase,PESQ,360,1.4208882103363674
+All classical,Wiener + noisy phase,PESQ,360,1.3601161072651544
+All classical,Noisy,SI_SDR_dB,360,5.00668333565469
+All classical,Perfect magnitude + noisy phase,SI_SDR_dB,360,15.618180562916402
+All classical,SS + clean oracle phase,SI_SDR_dB,360,11.497719918882902
+All classical,SS + noisy phase,SI_SDR_dB,360,9.537502980588995
+All classical,Wiener + clean oracle phase,SI_SDR_dB,360,10.71715409952672
+All classical,Wiener + noisy phase,SI_SDR_dB,360,8.819352144145268
+Matched,MP-SENet,STOI,167,0.923147243418108
+Matched,Noisy,STOI,167,0.8594589660586166
+Matched,Perfect magnitude + noisy phase,STOI,167,0.979388616672392
+Matched,SS + clean oracle phase,STOI,167,0.8749224080047899
+Matched,SS + noisy phase,STOI,167,0.8597089851040274
+Matched,Wiener + clean oracle phase,STOI,167,0.8719731790012547
+Matched,Wiener + noisy phase,STOI,167,0.8573318430378617
+Matched,MP-SENet,PESQ,167,2.33559279099196
+Matched,Noisy,PESQ,167,1.284383563224427
+Matched,Perfect magnitude + noisy phase,PESQ,167,3.622737581858378
+Matched,SS + clean oracle phase,PESQ,167,1.5312135126776325
+Matched,SS + noisy phase,PESQ,167,1.4638554457418933
+Matched,Wiener + clean oracle phase,PESQ,167,1.4765333665345244
+Matched,Wiener + noisy phase,PESQ,167,1.409764129958467
+Matched,MP-SENet,SI_SDR_dB,167,14.57813655316088
+Matched,Noisy,SI_SDR_dB,167,5.034237112317789
+Matched,Perfect magnitude + noisy phase,SI_SDR_dB,167,15.12925156591527
+Matched,SS + clean oracle phase,SI_SDR_dB,167,11.085228011351084
+Matched,SS + noisy phase,SI_SDR_dB,167,9.159900454774984
+Matched,Wiener + clean oracle phase,SI_SDR_dB,167,10.40296096570974
+Matched,Wiener + noisy phase,SI_SDR_dB,167,8.534004328940462
+Excluded from matched,Noisy,STOI,193,0.8539662012877567
+Excluded from matched,Perfect magnitude + noisy phase,STOI,193,0.9785170326950006
+Excluded from matched,SS + clean oracle phase,STOI,193,0.877491867623375
+Excluded from matched,SS + noisy phase,STOI,193,0.8588692720235394
+Excluded from matched,Wiener + clean oracle phase,STOI,193,0.8738562333321339
+Excluded from matched,Wiener + noisy phase,STOI,193,0.856008515969764
+Excluded from matched,Noisy,PESQ,193,1.1917976270685542
+Excluded from matched,Perfect magnitude + noisy phase,PESQ,193,3.474348115179823
+Excluded from matched,SS + clean oracle phase,PESQ,193,1.4448343008911053
+Excluded from matched,SS + noisy phase,PESQ,193,1.3798654375916317
+Excluded from matched,Wiener + clean oracle phase,PESQ,193,1.3727392927970292
+Excluded from matched,Wiener + noisy phase,PESQ,193,1.31715641923519
+Excluded from matched,Noisy,SI_SDR_dB,193,4.982841466728587
+Excluded from matched,Perfect magnitude + noisy phase,SI_SDR_dB,193,16.041243477419968
+Excluded from matched,SS + clean oracle phase,SI_SDR_dB,193,11.854642968405246
+Excluded from matched,SS + noisy phase,SI_SDR_dB,193,9.864236772355524
+Excluded from matched,Wiener + clean oracle phase,SI_SDR_dB,193,10.989020697181829
+Excluded from matched,Wiener + noisy phase,SI_SDR_dB,193,9.06625932103233
