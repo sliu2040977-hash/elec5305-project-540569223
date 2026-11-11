@@ -1,5 +1,33 @@
 # Investigating Phase Limitations in STFT-Based Speech Enhancement Using Oracle-Phase Analysis
 
+**Final submission** · [Project Site](https://sliu2040977-hash.github.io/elec5305-project-540569223/) · [Research report (PDF)](ELEC5305_Final_Report.pdf) · [Code and listening demonstration (MP4)](https://sliu2040977-hash.github.io/elec5305-project-540569223/ELEC5305_Demo.mp4)
+
+**Research question.** How much does reusing noisy phase limit classical STFT speech enhancement across noise conditions and input SNRs when the estimated magnitude is held fixed?
+
+## Run the included example
+
+With Python 3.12, run these commands from the repository root. The two WAV inputs are included. The demo and analysis were checked with Python 3.12, librosa 1.0.0, pystoi 0.4.1 and pesq 0.0.4. PESQ may require a C compiler when installed from source.
+
+```sh
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install numpy scipy librosa matplotlib soundfile pystoi pesq pandas
+python experiments/demo.py
+python experiments/analyze_final_results.py
+```
+
+The demo writes a CSV and WAV files under `demo_output/` and prints the 0 dB score table. The second command reads the archived 360-mixture classical results and 167-mixture matched results, verifies the matched classical scores, and regenerates the [final analysis tables and figures](results/final_analysis/).
+
+## What the final analysis found
+
+- **The phase swap helps by different amounts across metrics.** Spectral subtraction gained 0.0170 STOI, 0.0661 PESQ and 1.96 dB SI-SDR on average over 360 mixtures. STOI improved on all 360. PESQ decreased on six and SI-SDR on eleven. Wiener filtering showed a similar pattern.
+- **Noise and input SNR explain much of the pooled PESQ association.** For spectral subtraction, removing each noise-by-SNR group mean changed the disagreement versus PESQ-gain correlation from −0.523 to −0.068. The STOI association stayed positive (+0.897 pooled and +0.643 centred). The same utterances recur across test cells, so these are descriptive correlations.
+- **Magnitude estimation leaves substantial room for improvement.** With the same noisy phase, swapping the spectral-subtraction magnitude for the clean magnitude on the matched subset increased mean PESQ from 1.464 to 3.623. MP-SENet reached 2.336. Its advantage over the classical baselines is a system-level result since it changes both magnitude and phase.
+
+![Mean paired phase gain by noise and SNR](results/final_analysis/phase_effect_by_cell.png)
+
+![Pooled and cell-centred correlations](results/final_analysis/phase_correlations.png)
+
 ## 1. Student Information
 
 - **Name:** Suxin Liu
@@ -203,7 +231,7 @@ The subset is therefore reasonably distributed across the experimental noise and
 
 ---
 
-## 5. Current Results
+## 5. Full Classical Results
 
 ### 5.1 Full Oracle-Phase Experiment
 
@@ -217,7 +245,7 @@ The complete classical experiment contains:
 
 This produces **2160 metric rows**.
 
-The experiment confirms that replacing noisy phase with clean oracle phase produces measurable improvements while keeping the magnitude estimate unchanged.
+Replacing noisy phase with clean reference phase improved all three metrics on average while holding estimated magnitude fixed. The paired counts above show how often the direction reversed.
 
 The final result figures are available in:
 
@@ -227,7 +255,7 @@ The final result figures are available in:
 
 Across the 360-mixture experiment, the relationship between phase disagreement and oracle-phase benefit is strongly dependent on the evaluation metric.
 
-The measured Pearson correlations are:
+The pooled Pearson correlations below use spectral-subtraction pairs. See the final analysis above for the cell-centred comparison.
 
 | Metric improvement | Correlation with phase disagreement |
 |---|---:|
@@ -316,7 +344,7 @@ It substantially outperforms the noisy signal, spectral subtraction and Wiener f
 
 However, it remains below the perfect-magnitude diagnostic condition.
 
-This suggests that modern phase-aware enhancement benefits from joint magnitude-and-phase modelling rather than phase correction alone.
+This comparison measures the difference between complete systems. The magnitude path, phase path, architecture and training all differ. A phase ablation within MP-SENet would isolate its own phase contribution.
 
 ![Matched STOI comparison](results/final_figures/07_matched_method_comparison_stoi.png)
 
@@ -342,7 +370,7 @@ The objective results for this individual example are:
 
 | Method | STOI | PESQ | SI-SDR (dB) |
 |---|---:|---:|---:|
-| Noisy | 0.7433 | 1.1941 | -0.13 |
+| Noisy | 0.7343 | 1.1941 | -0.13 |
 | SS + noisy phase | 0.7277 | 1.2226 | 2.23 |
 | SS + clean oracle phase | **0.7512** | **1.2703** | **4.75** |
 | Wiener + noisy phase | 0.7273 | 1.1957 | 2.15 |
@@ -353,9 +381,9 @@ For both classical methods, replacing noisy phase with clean oracle phase improv
 
 MP-SENet produces substantially higher objective scores than either classical reconstruction for this example, consistent with the broader matched-subset results.
 
-### Listening Samples
+### Listening Example
 
-The corresponding audio examples are provided in:
+Use the [Project Site listening example](https://sliu2040977-hash.github.io/elec5305-project-540569223/#listening-example) for playback. The WAV files are provided in:
 
 `results/representative_example/audio/`
 
@@ -540,7 +568,7 @@ The generated numerical results are stored as CSV files under `results/`, while 
 
 ---
 
-## 13. Expected / Current Outcomes
+## 13. Project Outcomes
 
 The project delivers:
 
