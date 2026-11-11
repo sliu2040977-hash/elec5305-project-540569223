@@ -11,6 +11,8 @@ How much does reusing noisy phase limit classical speech enhancement when the es
 
 [Current report draft (PDF)](ELEC5305_Final_Report.pdf) · [Current demonstration draft (MP4)](ELEC5305_Demo.mp4) · [Repository and reproduction instructions](https://github.com/sliu2040977-hash/elec5305-project-540569223) · [Download source ZIP](https://github.com/sliu2040977-hash/elec5305-project-540569223/archive/refs/heads/main.zip)
 
+**Project milestones** · [01 Project proposal (PDF)](ELEC5305_01_Project_Proposal.pdf) · [02 Progress description (PDF)](ELEC5305_02_Project_Progress.pdf)
+
 ## Results
 
 Across 360 mixtures, supplying clean phase to the same spectral-subtraction magnitude added 0.0170 STOI, 0.0661 PESQ and 1.96 dB SI-SDR on average. STOI improved on every pair in this archive. PESQ and SI-SDR had occasional decreases.
@@ -19,7 +21,9 @@ For spectral subtraction, the pooled correlation between phase disagreement and 
 
 ![Mean spectral-subtraction gains by noise and SNR](results/final_analysis/phase_effect_by_cell.png)
 
-[Paired summary](results/final_analysis/paired_summary.csv) · [Noise and SNR results](results/final_analysis/noise_snr_means.csv) · [Matched model results](results/matched_comparison/matched_summary.csv)
+[Paired results with 95% intervals](results/final_analysis/paired_comparisons.csv) · [Phase correlation summary](results/final_analysis/paired_summary.csv) · [Noise and SNR results](results/final_analysis/noise_snr_means.csv) · [Matched model results](results/matched_comparison/matched_summary.csv)
+
+The paired table includes mean differences and improvement counts. Its intervals resample source utterances and retain the noise and SNR mixtures associated with each selected utterance. The full classical analysis covers 40 utterances. The 167-mixture matched comparison covers 27 utterances.
 
 ## Listening example
 

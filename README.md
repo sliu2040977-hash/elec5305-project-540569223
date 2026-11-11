@@ -2,6 +2,8 @@
 
 **Project materials** · [Project Site](https://sliu2040977-hash.github.io/elec5305-project-540569223/) · [Current report draft (PDF)](ELEC5305_Final_Report.pdf) · [Current demonstration draft (MP4)](https://sliu2040977-hash.github.io/elec5305-project-540569223/ELEC5305_Demo.mp4)
 
+**Project milestones** · [01 Project proposal (PDF)](ELEC5305_01_Project_Proposal.pdf) · [02 Progress description (PDF)](ELEC5305_02_Project_Progress.pdf)
+
 **Research question.** How much does reusing noisy phase limit classical STFT speech enhancement across noise conditions and input SNRs when the estimated magnitude is held fixed?
 
 ## Run the included example
@@ -17,6 +19,10 @@ python experiments/analyze_final_results.py
 ```
 
 The demo writes a CSV and WAV files under `demo_output/` and prints the 0 dB score table. The second command reads the archived 360-mixture classical results and 167-mixture matched results, verifies the matched classical scores, and regenerates the [final analysis tables and figures](results/final_analysis/).
+
+## Paired results
+
+The [paired results table](results/final_analysis/paired_comparisons.csv) reports mean gains, counts of improvements and decreases, and 95% percentile bootstrap intervals from 10,000 resamples of source utterances. Resampling keeps all mixtures from each selected utterance together. The intervals describe uncertainty within the observed two-speaker dataset. The classical contrasts use 360 mixtures from 40 utterances. The MP-SENet contrasts use the same 167 successfully processed mixtures from 27 utterances for each method.
 
 ## What the final analysis found
 
@@ -415,7 +421,7 @@ Therefore, noisy-phase reuse imposes a measurable limitation on classical STFT e
 
 ### Finding 2 — The Importance of Phase Is Metric-Dependent
 
-Phase disagreement strongly predicts oracle-phase STOI improvement (`r = 0.8969`), but does not predict PESQ and SI-SDR improvement in the same way.
+In the archived spectral-subtraction pairs, phase disagreement was positively associated with STOI gain (pooled Pearson `r = 0.8969`, noise-and-SNR-centred `r = 0.6428`). The corresponding centred associations for PESQ and SI-SDR were much weaker.
 
 Phase limitations should therefore not be described using only one objective metric.
 
@@ -425,11 +431,9 @@ The perfect-magnitude + noisy-phase condition produces the strongest objective p
 
 This demonstrates that magnitude-estimation error remains a major source of performance loss even when phase is imperfect.
 
-### Finding 4 — Modern Phase-Aware Enhancement Is More Than Phase Replacement
+### Finding 4 — MP-SENet Performance on Matched Inputs
 
-MP-SENet substantially outperforms the classical enhancement methods, including their oracle-phase versions on the matched subset.
-
-Its advantage therefore cannot be explained simply by replacing noisy phase with a better phase estimate. Joint magnitude-and-phase modelling provides a more powerful enhancement strategy.
+On the 167 matched mixtures, MP-SENet achieved higher mean scores than the classical estimators, including their clean-phase versions. These differences describe complete systems whose magnitude estimates, phase estimates, architecture and training differ. A controlled MP-SENet phase swap would isolate the effect of its phase estimate.
 
 ---
 
