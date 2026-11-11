@@ -16,7 +16,8 @@ KEY = ["Clean_File", "Noise_Type", "Target_SNR_dB"]
 METRICS = ["STOI", "PESQ", "SI_SDR_dB"]
 LABELS = ["STOI", "PESQ", "SI-SDR (dB)"]
 METHODS = ["SS", "Wiener"]
-ORACLE_MAG = "Perfect magnitude + noisy phase"
+BOOTSTRAP_RESAMPLES = 10_000
+BOOTSTRAP_SEED = 5305
 
 
 def paired_scores(rows):
@@ -60,6 +61,38 @@ def describe(effects):
                 "Tied": int((values == 0).sum()),
                 "Pooled_r": rows["Phase_rad"].corr(values),
                 "Cell_centered_r": centered["Phase_rad"].corr(centered[metric]),
+            })
+    return pd.DataFrame(records)
+
+
+def paired_comparisons(full, matched):
+    """Summarize paired gains with intervals resampled by source utterance."""
+    contrasts = [
+        ("Full classical", full, "SS + clean oracle phase", "SS + noisy phase"),
+        ("Full classical", full, "Wiener + clean oracle phase", "Wiener + noisy phase"),
+        ("Matched", matched, "MP-SENet", "SS + clean oracle phase"),
+        ("Matched", matched, "MP-SENet", "Perfect magnitude + noisy phase"),
+    ]
+    rng = np.random.default_rng(BOOTSTRAP_SEED)
+    records = []
+    for subset, rows, method, reference in contrasts:
+        gains = rows.xs(method, axis=1, level="Condition") - rows.xs(
+            reference, axis=1, level="Condition"
+        )
+        by_utterance = gains.groupby(level="Clean_File")
+        sums = by_utterance.sum().to_numpy()
+        counts = by_utterance.size().to_numpy()
+        draws = rng.integers(len(counts), size=(BOOTSTRAP_RESAMPLES, len(counts)))
+        bootstrap_means = sums[draws].sum(axis=1) / counts[draws].sum(axis=1)[:, None]
+        lower, upper = np.quantile(bootstrap_means, [0.025, 0.975], axis=0)
+        for index, metric in enumerate(METRICS):
+            scores = gains[metric]
+            records.append({
+                "Subset": subset, "Method": method, "Reference": reference,
+                "Metric": metric, "Mixtures": len(scores), "Utterances": len(counts),
+                "Mean_gain": scores.mean(), "Positive": int((scores > 0).sum()),
+                "Negative": int((scores < 0).sum()), "Tied": int((scores == 0).sum()),
+                "CI95_low": lower[index], "CI95_high": upper[index],
             })
     return pd.DataFrame(records)
 
@@ -126,6 +159,9 @@ def main():
     summary.to_csv(OUTPUT / "paired_summary.csv", index=False)
     cells.to_csv(OUTPUT / "noise_snr_means.csv", index=False)
     cohorts.to_csv(OUTPUT / "cohort_means.csv", index=False)
+    paired_comparisons(wide, matched).to_csv(
+        OUTPUT / "paired_comparisons.csv", index=False, float_format="%.8f"
+    )
     plot_phase_cells(cells)
     plot_correlations(summary)
     print(summary.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
