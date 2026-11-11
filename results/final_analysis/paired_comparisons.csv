@@ -1,0 +1,13 @@
+Subset,Method,Reference,Metric,Mixtures,Utterances,Mean_gain,Positive,Negative,Tied,CI95_low,CI95_high
+Full classical,SS + clean oracle phase,SS + noisy phase,STOI,360,40,0.01704112,360,0,0,0.01626130,0.01783677
+Full classical,SS + clean oracle phase,SS + noisy phase,PESQ,360,40,0.06607719,354,6,0,0.05901735,0.07282366
+Full classical,SS + clean oracle phase,SS + noisy phase,SI_SDR_dB,360,40,1.96021694,349,11,0,1.71155988,2.14461794
+Full classical,Wiener + clean oracle phase,Wiener + noisy phase,STOI,360,40,0.01636031,360,0,0,0.01564256,0.01707853
+Full classical,Wiener + clean oracle phase,Wiener + noisy phase,PESQ,360,40,0.06077210,354,6,0,0.05331473,0.06943233
+Full classical,Wiener + clean oracle phase,Wiener + noisy phase,SI_SDR_dB,360,40,1.89780196,345,15,0,1.62506943,2.09950362
+Matched,MP-SENet,SS + clean oracle phase,STOI,167,27,0.04822484,161,6,0,0.04289681,0.05314390
+Matched,MP-SENet,SS + clean oracle phase,PESQ,167,27,0.80437928,167,0,0,0.76364817,0.85098590
+Matched,MP-SENet,SS + clean oracle phase,SI_SDR_dB,167,27,3.49290854,141,26,0,3.03327839,4.12157141
+Matched,MP-SENet,Perfect magnitude + noisy phase,STOI,167,27,-0.05624137,0,167,0,-0.06429248,-0.04910520
+Matched,MP-SENet,Perfect magnitude + noisy phase,PESQ,167,27,-1.28714479,0,167,0,-1.35344949,-1.21129187
+Matched,MP-SENet,Perfect magnitude + noisy phase,SI_SDR_dB,167,27,-0.55111501,85,82,0,-0.73134419,-0.34610732
