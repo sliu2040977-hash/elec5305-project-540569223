@@ -1,6 +1,6 @@
 # Investigating Phase Limitations in STFT-Based Speech Enhancement Using Oracle-Phase Analysis
 
-**Final submission** · [Project Site](https://sliu2040977-hash.github.io/elec5305-project-540569223/) · [Research report (PDF)](ELEC5305_Final_Report.pdf) · [Code and listening demonstration (MP4)](https://sliu2040977-hash.github.io/elec5305-project-540569223/ELEC5305_Demo.mp4)
+**Project materials** · [Project Site](https://sliu2040977-hash.github.io/elec5305-project-540569223/) · [Current report draft (PDF)](ELEC5305_Final_Report.pdf) · [Current demonstration draft (MP4)](https://sliu2040977-hash.github.io/elec5305-project-540569223/ELEC5305_Demo.mp4)
 
 **Research question.** How much does reusing noisy phase limit classical STFT speech enhancement across noise conditions and input SNRs when the estimated magnitude is held fixed?
 

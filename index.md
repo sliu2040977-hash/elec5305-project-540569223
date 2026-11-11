@@ -9,7 +9,7 @@ layout: default
 
 How much does reusing noisy phase limit classical speech enhancement when the estimated magnitude is held fixed?
 
-[Final research report (PDF)](ELEC5305_Final_Report.pdf) · [Code demonstration (MP4)](ELEC5305_Demo.mp4) · [Repository and reproduction instructions](https://github.com/sliu2040977-hash/elec5305-project-540569223) · [Download source ZIP](https://github.com/sliu2040977-hash/elec5305-project-540569223/archive/refs/heads/main.zip)
+[Current report draft (PDF)](ELEC5305_Final_Report.pdf) · [Current demonstration draft (MP4)](ELEC5305_Demo.mp4) · [Repository and reproduction instructions](https://github.com/sliu2040977-hash/elec5305-project-540569223) · [Download source ZIP](https://github.com/sliu2040977-hash/elec5305-project-540569223/archive/refs/heads/main.zip)
 
 ## Results
 
