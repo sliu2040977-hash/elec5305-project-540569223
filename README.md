@@ -1,6 +1,6 @@
 # Investigating Phase Limitations in STFT-Based Speech Enhancement Using Oracle-Phase Analysis
 
-**Project materials** · [Project Site](https://sliu2040977-hash.github.io/elec5305-project-540569223/) · [Current report draft (PDF)](ELEC5305_Final_Report.pdf) · [Current demonstration draft (MP4)](https://sliu2040977-hash.github.io/elec5305-project-540569223/ELEC5305_Demo.mp4)
+**Project materials** · [Project Site](https://sliu2040977-hash.github.io/elec5305-project-540569223/) · [Final project report (PDF)](ELEC5305_Final_Report.pdf) · [Demonstration video (MP4)](https://sliu2040977-hash.github.io/elec5305-project-540569223/ELEC5305_Demo.mp4)
 
 **Project milestones** · [01 Project proposal (PDF)](ELEC5305_01_Project_Proposal.pdf) · [02 Progress description (PDF)](ELEC5305_02_Project_Progress.pdf)
 
